@@ -27,7 +27,5 @@ class StockShareTokenContract : EvolvableTokenContract(){
 
         require(inputs.company == outputs.company) {"The company of this stock share cannot change"}
         require(inputs.companyCode == outputs.company) {"The company code cannot change"}
-
-
     }
 }
