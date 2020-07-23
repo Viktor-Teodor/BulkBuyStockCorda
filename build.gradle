@@ -114,6 +114,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         cordapp project(":contracts")
         cordapp project(":workflows")
     }
+
     node {
         name "O=Notary,L=London,C=GB"
         notary = [validating : false]
@@ -124,6 +125,7 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
         cordapps = []
     }
+
     node {
         name "O=PartyA,L=London,C=GB"
         p2pPort 10005
@@ -133,12 +135,33 @@ task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
         }
         rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }
+
     node {
-        name "O=PartyB,L=New York,C=US"
+        name "O=PartyB,L=London,C=GB"
         p2pPort 10008
         rpcSettings {
             address("localhost:10009")
             adminAddress("localhost:10049")
+        }
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
+    }
+
+    node {
+        name "O=StocksManager,L=London,C=GB"
+        p2pPort 10011
+        rpcSettings {
+            address("localhost:10012")
+            adminAddress("localhost:10052")
+        }
+        rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
+    }
+
+    node {
+        name "O=PartyC,L=London,C=GB"
+        p2pPort 10014
+        rpcSettings {
+            address("localhost:10015")
+            adminAddress("localhost:10055")
         }
         rpcUsers = [[ user: "user1", "password": "test", "permissions": ["ALL"]]]
     }

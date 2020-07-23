@@ -13,7 +13,7 @@ data class StockShareToken(
         val maintainer: Party,
         val price : Double,
         override val linearId: UniqueIdentifier,
-        override val fractionDigits: Int = 0
+        override val fractionDigits: Int = 3
 ) : EvolvableTokenType() {
 
     companion object {

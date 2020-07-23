@@ -31,8 +31,8 @@ import net.corda.core.utilities.unwrap
 
 @StartableByRPC
 @InitiatingFlow
-class SellStocksFlow(vararg val newHoldersNamesAndPercentages : Pair<String,Double>,
-                     private val companyCode: String) : FlowLogic<SignedTransaction>() {
+class SellStocksFlow(private val companyCode: String,
+                     vararg val newHoldersNamesAndPercentages : Pair<String,Double>) : FlowLogic<SignedTransaction>() {
 
     @CordaSerializable
     data class PriceNotification(val amount: Amount<TokenType>)
@@ -41,36 +41,26 @@ class SellStocksFlow(vararg val newHoldersNamesAndPercentages : Pair<String,Doub
     override fun call(): SignedTransaction {
         val notary = serviceHub.networkMapCache.notaryIdentities.first()
 
-        val issuerName: CordaX500Name = CordaX500Name(
-                organisation = "StocksManager",
-                locality = "London",
-                country = "GB")
-
         //Extract the stock from the vault
         //Need to manually make sure that there is only one amount of stocks belonging to a company
         val stockStateToBeSold = serviceHub.vaultService.queryBy<FungibleState<StockShareToken>>()
                 .states
-                .asSequence()
                 .filter { it.ref.declaredField<String>("companyCode").toString() == companyCode }
                 .map {it}
-                .toList()
 
-        //Get the parties that are buying the shares
-        val sequenceOfNewHolders = newHoldersNamesAndPercentages.asSequence()
 
-        require(sequenceOfNewHolders.sumByDouble { it.second } == 100.0) {"The percentages should add up to 100"}
+        require(newHoldersNamesAndPercentages.sumByDouble { it.second } == 100.0) {"The percentages should add up to 100"}
 
         //Transform the initial mapping into a list of PartyAndAmount that can be used directly in the transaction
         //it.first is the party (as a string initially then as a Party object) second is the percentage of the shares as double
 
-        val newHoldersPartiesAndPercentages : List<PartyAndAmount<TokenType>> = sequenceOfNewHolders.map{
+        val newHoldersPartiesAndPercentages : List<PartyAndAmount<TokenType>> = newHoldersNamesAndPercentages.map{
             Pair(serviceHub.identityService.wellKnownPartyFromX500Name(CordaX500Name(organisation = "${it.first}",
                     locality = "London",
                     country = "GB")) ?:
             throw IllegalArgumentException("Couldn't find counter party for $it.first in identity service"), it.second)
         }.map { PartyAndAmount(it.first, (it.second/100.0 * stockStateToBeSold.single().state.data.amount.quantity)
                 of stockStateToBeSold.single().state.data.amount.token.toPointer<StockShareToken>()) }
-                .toList()
 
         var totalSumOutputStates  = 0.0
         val totalCostOfStocks = stockStateToBeSold.single().state.data.amount.quantity *
@@ -124,7 +114,7 @@ class SellStocksFlow(vararg val newHoldersNamesAndPercentages : Pair<String,Doub
 
 
     @InitiatedBy(SellStocksFlow::class)
-    class SellHouseFlowHandler(val otherSession: FlowSession) : FlowLogic<Unit>() {
+    class SellStocksFlowHandler(val otherSession: FlowSession) : FlowLogic<Unit>() {
 
         @Suspendable
         override fun call() {
