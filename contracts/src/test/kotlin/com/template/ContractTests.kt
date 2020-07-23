@@ -1,6 +1,5 @@
 package com.template
 
-import com.r3.corda.lib.tokens.contracts.EvolvableTokenContract
 import com.r3.corda.lib.tokens.contracts.commands.Create
 import com.r3.corda.lib.tokens.contracts.commands.Update
 import com.template.contracts.StockShareTokenContract
@@ -117,13 +116,13 @@ class ContractTests {
                 val inputToken = StockShareToken(company = "Microsoft Corporations",
                                                 companyCode = "MSFT",
                                                 maintainer = stocksManager.party,
-                                                price = -200.13,
+                                                price = 200.13,
                                                 linearId = UniqueIdentifier())
 
                 val outputToken = StockShareToken(company = "Microsoft Corporations",
                                                     companyCode = "MSFT",
                                                     maintainer = stocksManager.party,
-                                                    price = -200.13,
+                                                    price = 200.13,
                                                     linearId = UniqueIdentifier())
 
 
@@ -136,7 +135,31 @@ class ContractTests {
     }
 
     @Test
-    fun `dummy test`() {
+    fun `company code and name can't change`() {
+        val expectedMessage = "The Linear ID of the evolvable token cannot change during an update."
 
+        ledgerServices.ledger {
+            transaction {
+
+                val inputToken = StockShareToken(company = "Microsoft Corporations",
+                                                            companyCode = "MSFT",
+                                                            maintainer = stocksManager.party,
+                                                            price = 200.13,
+                                                            linearId = UniqueIdentifier())
+
+                val outputToken = StockShareToken(company = "Blackrock",
+                                                            companyCode = "Blk",
+                                                            maintainer = stocksManager.party,
+                                                            price = 200.13,
+                                                            linearId = UniqueIdentifier())
+
+
+                input(StockShareTokenContract.ID, inputToken)
+                output(StockShareTokenContract.ID, outputToken)
+                command(partyA.publicKey, Update())
+                failsWith(expectedMessage)
+            }
+        }
     }
+
 }

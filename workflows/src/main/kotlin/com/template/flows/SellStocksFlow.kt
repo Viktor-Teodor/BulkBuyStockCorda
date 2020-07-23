@@ -54,13 +54,13 @@ class SellStocksFlow(private val companyCode: String,
         //Transform the initial mapping into a list of PartyAndAmount that can be used directly in the transaction
         //it.first is the party (as a string initially then as a Party object) second is the percentage of the shares as double
 
-        val newHoldersPartiesAndPercentages : List<PartyAndAmount<TokenType>> = newHoldersNamesAndPercentages.map{
-            Pair(serviceHub.identityService.wellKnownPartyFromX500Name(CordaX500Name(organisation = "${it.first}",
-                    locality = "London",
-                    country = "GB")) ?:
-            throw IllegalArgumentException("Couldn't find counter party for $it.first in identity service"), it.second)
-        }.map { PartyAndAmount(it.first, (it.second/100.0 * stockStateToBeSold.single().state.data.amount.quantity)
-                of stockStateToBeSold.single().state.data.amount.token.toPointer<StockShareToken>()) }
+        val totalNumberOfSharesToBeSold = stockStateToBeSold.single().state.data.amount.quantity
+        val pointerToStockToken = stockStateToBeSold.single().state.data.amount.token.toPointer<StockShareToken>()
+
+        val newHoldersPartiesAndPercentages : List<PartyAndAmount<TokenType>> = newHoldersNamesAndPercentages
+                .map { PartyAndAmount(serviceHub.identityService.partiesFromName("organization=${it.first},locality=London, country=GB", false).single(),
+                                (it.second/100.0 * totalNumberOfSharesToBeSold) of pointerToStockToken)
+                }
 
         var totalSumOutputStates  = 0.0
         val totalCostOfStocks = stockStateToBeSold.single().state.data.amount.quantity *

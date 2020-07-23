@@ -45,8 +45,6 @@ class IssueCurrencyFlow(
     }
 }
 
-
-
 @InitiatedBy(IssueCurrencyFlow::class)
 class IssueCurrencyFlowResponder(val counterpartySession: FlowSession) : FlowLogic<Unit>() {
 
