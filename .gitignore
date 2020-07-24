@@ -55,6 +55,8 @@ lib/dokka.jar
 ## Plugin-specific files:
 
 # IntelliJ
+/logs/
+/build/
 /out/
 workflows/out/
 contracts/out/

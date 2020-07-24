@@ -20,6 +20,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
+
+
 class FlowTests {
 
     private lateinit var mockNet: MockNetwork
@@ -80,7 +82,7 @@ class FlowTests {
     }
 
     @Test(timeout = 300_000)
-    fun `issue money test`(){
+    fun issueMoneyTest(){
 
         val issueCurrencyFlow = IssueCurrencyFlow(100,"partyA")
 
@@ -95,7 +97,7 @@ class FlowTests {
     }
 
     @Test(timeout = 300_000)
-    fun `issue stocks test`(quantity : Long){
+    fun `issue stocks test`(){
 
         val stockShareTokenTest = StockShareToken(company = "Microsoft Corporation",
                                                 companyCode = "MSFT",
