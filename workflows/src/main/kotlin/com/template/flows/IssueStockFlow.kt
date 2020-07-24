@@ -6,9 +6,11 @@ import com.r3.corda.lib.tokens.contracts.utilities.heldBy
 import com.r3.corda.lib.tokens.contracts.utilities.issuedBy
 import com.r3.corda.lib.tokens.contracts.utilities.of
 import com.r3.corda.lib.tokens.contracts.utilities.withNotary
+import com.r3.corda.lib.tokens.workflows.flows.issue.IssueTokensFlow
 import com.r3.corda.lib.tokens.workflows.flows.issue.IssueTokensFlowHandler
 import com.r3.corda.lib.tokens.workflows.flows.rpc.CreateEvolvableTokens
 import com.r3.corda.lib.tokens.workflows.flows.rpc.IssueTokens
+import com.r3.corda.lib.tokens.workflows.flows.rpc.IssueTokensHandler
 import com.template.states.StockShareToken
 import net.corda.core.contracts.UniqueIdentifier
 import net.corda.core.flows.*
@@ -34,7 +36,7 @@ class IssueStockFlow(
         val notary = serviceHub.networkMapCache.notaryIdentities.first()
 
         val stockManager: CordaX500Name = CordaX500Name(
-                organisation = "StocksManager",
+                organisation = "stocksManager",
                 locality = "London",
                 country = "GB")
 
@@ -63,8 +65,11 @@ class IssueStockFlow(
         //create a pointer to the evolvable token
         val token = stockShares.toPointer<EvolvableTokenType>()
 
+        val session = initiateFlow(recipient)
+
         // Starting this flow with a new flow session.
-        val issueTokensFlow = IssueTokens(listOf(amount of token issuedBy ourIdentity heldBy recipient))
+        val issueTokensFlow = IssueTokensFlow(amount of token issuedBy ourIdentity heldBy recipient, listOf(session))
+
         return subFlow(issueTokensFlow)
     }
 }

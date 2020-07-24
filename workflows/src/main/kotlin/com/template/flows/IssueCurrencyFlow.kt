@@ -8,9 +8,11 @@ import com.r3.corda.lib.tokens.contracts.utilities.issuedBy
 import com.r3.corda.lib.tokens.contracts.utilities.of
 import com.r3.corda.lib.tokens.contracts.utilities.withNotary
 import com.r3.corda.lib.tokens.money.GBP
+import com.r3.corda.lib.tokens.workflows.flows.issue.IssueTokensFlow
 import com.r3.corda.lib.tokens.workflows.flows.issue.IssueTokensFlowHandler
 import com.r3.corda.lib.tokens.workflows.flows.rpc.CreateEvolvableTokens
 import com.r3.corda.lib.tokens.workflows.flows.rpc.IssueTokens
+import com.r3.corda.lib.tokens.workflows.flows.rpc.IssueTokensHandler
 import com.template.states.StockShareToken
 import net.corda.core.contracts.TransactionState
 import net.corda.core.contracts.UniqueIdentifier
@@ -41,7 +43,9 @@ class IssueCurrencyFlow(
         val recipient: Party = serviceHub.identityService.wellKnownPartyFromX500Name(recipientCordaName) ?:
         throw IllegalArgumentException("Couldn't find counterparty for $recipientName in identity service")
 
-        return subFlow(IssueTokens(listOf(amount.GBP issuedBy ourIdentity heldBy recipient))) // Initiating version of IssueFlow
+        val session = initiateFlow(recipient)
+
+        return subFlow(IssueTokensFlow(amount.GBP issuedBy ourIdentity heldBy recipient, listOf(session)))
     }
 }
 

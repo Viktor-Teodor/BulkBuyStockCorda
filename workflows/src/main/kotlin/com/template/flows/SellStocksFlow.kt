@@ -19,7 +19,6 @@ import com.template.states.StockShareToken
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.FungibleState
 import net.corda.core.flows.*
-import net.corda.core.identity.CordaX500Name
 import net.corda.core.identity.Party
 import net.corda.core.internal.declaredField
 import net.corda.core.node.services.queryBy
