@@ -54,7 +54,7 @@ class TestFlows() {
     val TOKENS_CONTRACTS_CORDAPP: TestCordappImpl = findCordapp("com.r3.corda.lib.tokens.contracts")
 
     @JvmField
-    val STOCK_CORDAPPS: Set<TestCordappImpl> = setOf(STOCKS_CONTRACTS_CORDAPP, STOCK_WORKFLOWS_CORDAPP,TOKENS_CONTRACTS_CORDAPP)
+    val STOCK_CORDAPPS: Set<TestCordappImpl> = setOf(STOCKS_CONTRACTS_CORDAPP, STOCK_WORKFLOWS_CORDAPP,TOKENS_CONTRACTS_CORDAPP )
 
 
     @Test(timeout=300_000)
@@ -66,7 +66,13 @@ class TestFlows() {
         val partyCName = CordaX500Name(organisation = "partyC", locality = "London", country = "GB")
 
 
-        driver(DriverParameters(startNodesInProcess = true, cordappsForAllNodes = STOCK_CORDAPPS)) {
+        driver(DriverParameters(startNodesInProcess = true, cordappsForAllNodes = listOf(
+                TestCordapp.findCordapp("com.template.contracts"),
+                TestCordapp.findCordapp("com.template.flows"),
+                TestCordapp.findCordapp("com.r3.corda.lib.tokens.contracts"),
+                TestCordapp.findCordapp("com.template.states")),
+                extraCordappPackagesToScan = listOf("com.template.contracts","com.template.states"))) {
+
             val stocksManagerUser = User("stocksManagerUser", "testPassword1", permissions = setOf(
                     startFlow<IssueCurrencyFlow>(), startFlow<IssueStockFlow>(),
                     invokeRpc("vaultTrackBy")

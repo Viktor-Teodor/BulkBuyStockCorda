@@ -67,7 +67,7 @@ class SellStocksFlow(private val companyCode: String,
 
         //Choose the first notary and start building the transaction
         val txBuilder = TransactionBuilder(notary = notary)
-        addMoveFungibleTokens(txBuilder, serviceHub,newHoldersPartiesAndPercentages,ourIdentity)
+        addMoveFungibleTokens(txBuilder, serviceHub, newHoldersPartiesAndPercentages, ourIdentity)
 
         for (buyerParty in newHoldersPartiesAndPercentages){
             val session = initiateFlow(buyerParty.party as Party)
