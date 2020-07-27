@@ -2,6 +2,7 @@ package com.template.contracts
 
 import com.r3.corda.lib.tokens.contracts.EvolvableTokenContract
 import com.template.states.StockShareToken
+import net.corda.core.contracts.Contract
 import net.corda.core.transactions.LedgerTransaction
 
 
@@ -9,7 +10,7 @@ import net.corda.core.transactions.LedgerTransaction
 /**
  * This doesn't do anything over and above the [EvolvableTokenContract].
  */
-class StockShareTokenContract : EvolvableTokenContract(){
+class StockShareTokenContract : EvolvableTokenContract(), Contract{
 
     companion object {
         val ID = StockShareTokenContract::class.qualifiedName!!
