@@ -158,7 +158,7 @@ class FlowTests {
 
         //call the sell flow, partyA has to start it
 
-        val sellFLow = SellStocksFlow("MSFT", Pair("partyB", 30.0), Pair("partyC", 70.0))
+        val sellFLow = SellStocksFlow("MSFT", listOf(Pair("partyB", 30.0), Pair("partyC", 70.0)))
 
         partyANode.startFlow(sellFLow)
 

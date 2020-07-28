@@ -2,6 +2,7 @@ package com.template.flows
 
 import co.paralleluniverse.fibers.Suspendable
 import com.r3.corda.lib.tokens.contracts.states.EvolvableTokenType
+import com.r3.corda.lib.tokens.contracts.types.IssuedTokenType
 import com.r3.corda.lib.tokens.contracts.utilities.heldBy
 import com.r3.corda.lib.tokens.contracts.utilities.issuedBy
 import com.r3.corda.lib.tokens.contracts.utilities.of
@@ -63,7 +64,9 @@ class IssueStockFlow(
         throw IllegalArgumentException("Couldn't find counterparty for $recipientName in identity service")
 
         //create a pointer to the evolvable token
-        val token = stockShares.toPointer<EvolvableTokenType>()
+        val token = stockShares.toPointer<StockShareToken>()
+
+        var test = IssuedTokenType(ourIdentity, token)
 
         val session = initiateFlow(recipient)
 

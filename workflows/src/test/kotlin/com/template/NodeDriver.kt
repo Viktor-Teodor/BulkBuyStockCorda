@@ -1,5 +1,6 @@
 package com.template
 
+import com.r3.corda.lib.tokens.contracts.types.IssuedTokenType
 import com.template.flows.*
 import com.template.states.StockShareToken
 import jdk.nashorn.internal.parser.TokenType
@@ -69,7 +70,7 @@ class TestFlows() {
                 networkParameters = testNetworkParameters(minimumPlatformVersion = 4)
             )
         ) {
-            
+
             val stocksManagerUser = User(
                 "stocksManagerUser", "testPassword1", permissions = setOf(
                     startFlow<IssueCurrencyFlow>(), startFlow<IssueStockFlow>(),
@@ -78,30 +79,15 @@ class TestFlows() {
             )
 
             val partyAUser = User(
-                "partyAUser", "testPassword2", permissions = setOf(
-                    startFlow<SellStocksFlow>(),
-                    startFlow<IssueCurrencyFlowResponder>(),
-                    startFlow<IssueStockFlowResponder>(),
-                    invokeRpc("vaultTrackBy")
-                )
+                "partyAUser", "testPassword2", permissions = setOf("ALL")
             )
 
             val partyBUser = User(
-                "partyBUser", "testPassword3", permissions = setOf(
-                    startFlow<SellStocksFlow>(),
-                    startFlow<IssueCurrencyFlowResponder>(),
-                    startFlow<IssueStockFlowResponder>(),
-                    invokeRpc("vaultTrackBy")
-                )
+                "partyBUser", "testPassword3", permissions = setOf("ALL")
             )
 
             val partyCUser = User(
-                "partyCUser", "testPassword4", permissions = setOf(
-                    startFlow<SellStocksFlow>(),
-                    startFlow<IssueCurrencyFlowResponder>(),
-                    startFlow<IssueStockFlowResponder>(),
-                    invokeRpc("vaultTrackBy")
-                )
+                "partyCUser", "testPassword4", permissions = setOf("ALL")
             )
 
             val (stocksManager, partyA, partyB, partyC) = listOf(
@@ -141,7 +127,7 @@ class TestFlows() {
                 partyCProxy.vaultTrackBy<FungibleState<StockShareToken>>().updates
 
 
-            stocksManagerProxy.startFlow(::IssueCurrencyFlow, 400, "partyB").returnValue.getOrThrow()
+           stocksManagerProxy.startFlow(::IssueCurrencyFlow, 400, "partyB").returnValue.getOrThrow()
 
             partyBVaultCurrencyUpdates.expectEvents {
                 expect { update ->
@@ -161,7 +147,7 @@ class TestFlows() {
                 }
             }
 
-            stocksManagerProxy.startFlow(
+            val test = stocksManagerProxy.startFlow(
                 ::IssueStockFlow,
                 "Microsoft Corporations",
                 "MSFT",
@@ -174,10 +160,50 @@ class TestFlows() {
                 expect { update ->
                     println("PartyA got vault update of $update")
                     val amount: Amount<StockShareToken> = update.produced.first().state.data.amount
-                    assertEquals(1000, amount.quantity)
-                    assertEquals(12300.0, amount.token.price)
+                    assertEquals(100000, amount.quantity)
                 }
             }
+
+            val listArgument = listOf(
+                    Pair("partyB", 30.0),
+                    Pair("partyC",70.0)
+            )
+
+            partyAProxy.startFlow(
+                    ::SellStocksFlow,
+                    "MSFT",
+                    listArgument
+            ).returnValue.getOrThrow()
+
+            /*
+            partyAVaultCurrencyUpdates.expectEvents {
+                expect { update ->
+                    println("PartyA got vault update of $update")
+                    val amount: Amount<TokenType> = update.produced.first().state.data.amount
+                    assertEquals(123000, amount.quantity)
+                }
+            }
+            */
+
+            /*
+            partyBVaultStockUpdates.expectEvents {
+                expect { update ->
+                    println("PartyB got vault update of $update")
+                    val amount: Amount<StockShareToken> = update.produced.first().state.data.amount
+                    assertEquals(30000, amount.quantity)
+                }
+            }
+
+            partyCVaultStockUpdates.expectEvents {
+                expect { update ->
+                    println("PartyC got vault update of $update")
+                    val amount: Amount<StockShareToken> = update.produced.first().state.data.amount
+                    assertEquals(70000, amount.quantity)
+                }
+            }
+
+             */
+
         }
     }
 }
